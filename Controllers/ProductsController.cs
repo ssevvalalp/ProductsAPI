@@ -36,30 +36,31 @@ namespace ProductsAPI.Controllers
 
 
         [HttpGet]
-        public async Task <IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-           //if (_products == null)
-           // {
-           //     return NotFound();
-           // }
-           // return Ok( _products);
+            //if (_products == null)
+            // {
+            //     return NotFound();
+            // }
+            // return Ok( _products);
 
             var products = await _context.Products.ToListAsync();
             return Ok(products);
         }
 
+        //localhost:5000/api/products/5 => GET
 
         [HttpGet("{id}")]
-        public async Task <IActionResult> GetProduct(int? id)
+        public async Task<IActionResult> GetProduct(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
             //var p = _products?.FirstOrDefault(i => i.ProductId == id);
 
-            var p =await _context.Products.FirstOrDefaultAsync(i => i.ProductId == id);
+            var p = await _context.Products.FirstOrDefaultAsync(i => i.ProductId == id);
 
             if (p == null)
             {
@@ -71,13 +72,44 @@ namespace ProductsAPI.Controllers
 
         [HttpPost]
 
-        public async Task <IActionResult> CreateProduct(Product entity)
+        public async Task<IActionResult> CreateProduct(Product entity)
         {
             _context.Products.Add(entity);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetProduct), new { id = entity.ProductId }, entity);
         }
-            
 
+        //localhost:5000/api/products/5 => PUT
+        [HttpPut]
+        public async Task<IActionResult> UpdateProduct(int id, Product entity)
+        {
+            if (id != entity.ProductId)
+            {
+                return BadRequest();
+            }
+            var product = await _context.Products.FirstOrDefaultAsync(i => i.ProductId == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+            product.ProductName = entity.ProductName;
+            product.Price = entity.Price;
+            product.IsActive = entity.IsActive;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+            }
+            catch(Exception)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+
+
+        }
     }
 }
