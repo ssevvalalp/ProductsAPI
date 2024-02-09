@@ -50,7 +50,7 @@ namespace ProductsAPI.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task <IActionResult> GetProducts(int? id)
+        public async Task <IActionResult> GetProduct(int? id)
         {
             if(id == null)
             {
@@ -67,6 +67,15 @@ namespace ProductsAPI.Controllers
             }
             return Ok(p);
 
+        }
+
+        [HttpPost]
+
+        public async Task <IActionResult> CreateProduct(Product entity)
+        {
+            _context.Products.Add(entity);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetProduct), new { id = entity.ProductId }, entity);
         }
             
 
