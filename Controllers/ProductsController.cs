@@ -44,13 +44,7 @@ namespace ProductsAPI.Controllers
             // }
             // return Ok( _products);
 
-            var products = await _context.Products.Where(i => i.IsActive).Select(p => 
-            new ProductDTO
-            {
-                ProductId = p.ProductId,
-                ProductName = p.ProductName,
-                Price = p.Price
-            }).ToListAsync();
+            var products = await _context.Products.Where(i => i.IsActive).Select(p =>ProductToDto(p)).ToListAsync();
             return Ok(products);
         }
 
@@ -67,16 +61,10 @@ namespace ProductsAPI.Controllers
 
             //var p = _products?.FirstOrDefault(i => i.ProductId == id);
 
-            var p = await _context
-                .Products
-                .Select(p => new ProductDTO
-                {
-                    ProductId = p.ProductId,
-                    ProductName = p.ProductName,
-                    Price = p.Price
-                })
-                .FirstOrDefaultAsync(i => i.ProductId == id);
-
+            /*var p = await _context.Products.Select(p => ProductToDTO(p)).FirstOrDefaultAsync(i => i.ProductId == id);
+            önce filtreleme yapmak gerekir where ile.  seçilen bir product yoksa bu durumda null reference hatası gelir.
+             */
+            var p = await _context.Products.Where(p => p.ProductId == id).Select(p => ProductToDto(p)).FirstOrDefaultAsync();
             if (p == null)
             {
                 return NotFound();
@@ -156,6 +144,16 @@ namespace ProductsAPI.Controllers
                 return NotFound();
             }
             return NoContent();
+        }
+
+        private static ProductDTO ProductToDto(Product p)
+        {
+            return new ProductDTO
+            { 
+              ProductId = p.ProductId,
+              ProductName = p.ProductName,
+              Price = p.Price 
+            };
         }
     }
 }
