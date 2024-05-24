@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProductsAPI.Models
 {
-    public class ProductsContext:DbContext
+    public class ProductsContext: IdentityDbContext<AppUser,AppRole,int> //DbContext
     {
         
         public ProductsContext(DbContextOptions<ProductsContext> options): base(options)
@@ -10,6 +11,7 @@ namespace ProductsAPI.Models
            
         }
 
+        //HasData ile dbde data yoksa ekler
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
