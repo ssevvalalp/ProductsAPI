@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProductsAPI.DTO;
 using ProductsAPI.Models;
@@ -6,7 +6,7 @@ using ProductsAPI.Models;
 namespace ProductsAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] // [Route("api/products")]
     public class ProductsController : ControllerBase
     {
 
@@ -50,7 +50,7 @@ namespace ProductsAPI.Controllers
 
         //localhost:5000/api/products/5 => GET
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}")] //[HttpGet("api/[controller]{id}")]  
         public async Task<IActionResult> GetProduct(int? id)
             // public IActionResult GetProduct(int? id)
         {
@@ -74,7 +74,6 @@ namespace ProductsAPI.Controllers
         }
 
         [HttpPost]  
-
         public async Task<IActionResult> CreateProduct(Product entity)
         {
             _context.Products.Add(entity);
@@ -89,7 +88,7 @@ namespace ProductsAPI.Controllers
         {
             if (id != entity.ProductId)
             {
-                return BadRequest();
+                return BadRequest(); // örn: productid = 1 urlye gönderilen id = 2 
             }
             var product = await _context.Products.FirstOrDefaultAsync(i => i.ProductId == id);
 
@@ -147,13 +146,15 @@ namespace ProductsAPI.Controllers
         }
 
         private static ProductDTO ProductToDto(Product p)
-        {
-            return new ProductDTO
-            { 
-              ProductId = p.ProductId,
-              ProductName = p.ProductName,
-              Price = p.Price 
-            };
+        { 
+            var entity = new ProductDTO();
+            if (p != null)
+            {
+                entity.ProductId = p.ProductId;
+                entity.ProductName = p.ProductName;
+                entity.Price = p.Price;
+            }
+            return entity;
         }
     }
 }
