@@ -7,8 +7,19 @@ using Microsoft.OpenApi.Models;
 using ProductsAPI.Models;
 using System.Text;
 
+var MyAllowSpesificOrigins = "_myAllowSpesificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
+//----------------------CORS POLICY----------------------
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(MyAllowSpesificOrigins, policy =>
+    {
+        policy.WithOrigins("http://127.0.0.1:8080")
+        .AllowAnyHeader() // hepsi için bu şekilde. /belli parametrelerin(authentication) olma zorunluluğu Requestteki header Bareer Token 
+        .AllowAnyMethod(); //hepsi için bu şekilde /hangi method
+    });
+});
 
 
 builder.Services.AddDbContext<ProductsContext>(x => x.UseSqlite("Data Source=products.db"));
@@ -30,6 +41,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     
 });
 
+// ---------------------Token doğruluk kontrolü
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -51,8 +63,8 @@ builder.Services.AddAuthentication(x =>
             "a", "b"
         },
 
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(
+        ValidateIssuerSigningKey = true, //tokeni validate etmek
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes( //validate ederken kullanılacak key bilgisi
             builder.Configuration.GetSection("AppSettings:Secret").Value ?? "")),
             ValidateLifetime = true
 
@@ -65,7 +77,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-//swagger authentication button
+//------------------swagger arayüzüne authentication button--------------
 builder.Services.AddSwaggerGen(option =>
 {
     option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
@@ -107,6 +119,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
+
+app.UseRouting();
+
+app.UseCors(MyAllowSpesificOrigins); // bu aralıkta olmalı
+
 app.UseAuthorization();
 
 app.MapControllers();
